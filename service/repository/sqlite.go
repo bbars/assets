@@ -89,6 +89,10 @@ func (sq *sqlite) applyMigration(filePath string, skipPreCheck bool) (err error)
 	}
 
 	tx, err := sq.Db.Begin()
+	if err != nil {
+		err = errors.Wrapf(err, "begin transaction for migration %+q", filePath)
+		return
+	}
 	defer func() {
 		if err == nil {
 			err = tx.Commit()
