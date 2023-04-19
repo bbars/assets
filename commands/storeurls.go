@@ -17,7 +17,7 @@ func NewStoreUrlsCommand(initAssets InitAssets) *cli.Command {
 	}
 	return &cli.Command{
 		Name:   "storeurls",
-		Usage:  "store assets by original urls",
+		Usage:  "Store assets by original URLs",
 		Action: su.Action,
 		Before: func(ctx *cli.Context) (err error) {
 			su.assets, err = initAssets(ctx)

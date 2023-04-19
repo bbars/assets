@@ -12,7 +12,7 @@ func NewMigrateCommand(initAssetRepo InitAssetRepo) *cli.Command {
 	}
 	return &cli.Command{
 		Name:   "migrate",
-		Usage:  "apply migrations on current database",
+		Usage:  "Apply migrations on current database",
 		Action: m.Action,
 		Before: func(ctx *cli.Context) (err error) {
 			m.assetRepo, err = initAssetRepo(ctx)

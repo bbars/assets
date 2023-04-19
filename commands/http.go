@@ -23,7 +23,7 @@ func NewHttpCommand(initAssets InitAssets) *cli.Command {
 	}
 	return &cli.Command{
 		Name:   "http",
-		Usage:  "serve http",
+		Usage:  "Start pure HTTP server",
 		Action: sh.Action,
 		Before: func(ctx *cli.Context) (err error) {
 			sh.assets, err = initAssets(ctx)
@@ -32,13 +32,13 @@ func NewHttpCommand(initAssets InitAssets) *cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "bind",
-				Usage:   "address to bind http server",
+				Usage:   "Address to bind HTTP server",
 				Value:   ":8080",
 				EnvVars: []string{"ASSETS_HTTP_BIND"},
 			},
 			&cli.StringFlag{
 				Name:    "fallback-mimetype",
-				Usage:   "fallback value for response content-type header",
+				Usage:   "Fallback value for response Content-Type header",
 				Value:   "application/octet-stream",
 				EnvVars: []string{"ASSETS_HTTP_FALLBACK_MIMETYPE"},
 			},
@@ -74,6 +74,10 @@ func (sh *serveHttp) Action(ctx *cli.Context) error {
 	httpServer := &http.Server{
 		Handler: hm,
 		ConnContext: func(httpCtx context.Context, c net.Conn) context.Context {
+			// Save *current context* and feed it to Conn.
+			// Conn will wrap it with cancel that will fire when client disconnects.
+			// We are about to pop *current context* in some situations
+			// to bypass http request context, when we want to ignore client disconnects.
 			return ctxutil.Push(ctx.Context)
 		},
 	}
@@ -129,7 +133,7 @@ func (sh *serveHttp) storeByOriginalUrl(w http.ResponseWriter, r *http.Request) 
 	wait := q.Get("wait") != ""
 	ctx := r.Context()
 	if !wait {
-		// bypass http request context
+		// Bypass http request context to ignore client disconnects
 		ctx = ctxutil.Pop(ctx)
 	}
 	prepAsset, err := sh.assets.StoreByOriginalUrl(

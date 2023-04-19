@@ -117,7 +117,7 @@ func (a *Assets) Store(ctx context.Context, extra *types.Asset, data io.Reader) 
 
 	_, contentHash, size, err := a.Storage.Write(data)
 	if err != nil {
-		err = errors.Wrapf(err, "write asset %v", extra)
+		err = errors.Wrap(err, "write asset")
 		return
 	}
 

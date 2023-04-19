@@ -16,7 +16,7 @@ func NewStorePipeCommand(initAssets InitAssets) *cli.Command {
 	}
 	return &cli.Command{
 		Name:   "storepipe",
-		Usage:  "store local file as an asset",
+		Usage:  "Read stdin and store the data as an asset",
 		Action: sp.Action,
 		Before: func(ctx *cli.Context) (err error) {
 			sp.assets, err = initAssets(ctx)

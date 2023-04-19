@@ -5,9 +5,9 @@ import (
 )
 
 type AssetStorageConfig struct {
-	MaxRemoteSize      uint64
-	MaxRemoteWaitSize  uint64
-	MaxSize            uint64
+	MaxRemoteSize      int64
+	MaxRemoteWaitSize  int64
+	MaxSize            int64
 	OriginalUrlPattern *regexp.Regexp
 	HttpUserAgent      string
 }

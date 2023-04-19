@@ -19,7 +19,7 @@ func NewStoreFilesCommand(initAssets InitAssets) *cli.Command {
 	}
 	return &cli.Command{
 		Name:   "storefiles",
-		Usage:  "store local files as assets",
+		Usage:  "Store local files as assets",
 		Action: sf.Action,
 		Before: func(ctx *cli.Context) (err error) {
 			sf.assets, err = initAssets(ctx)
