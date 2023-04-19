@@ -115,7 +115,7 @@ func (a *Assets) readAsset(ctx context.Context, asset *types.Asset) (rc io.ReadC
 func (a *Assets) Store(ctx context.Context, extra *types.Asset, data io.Reader) (asset *types.Asset, err error) {
 	defer RecoverService(&err)
 
-	_, contentHash, size, err := a.Storage.Write(data)
+	_, contentHash, size, err := a.Storage.Write(data, a.Config.MaxSize)
 	if err != nil {
 		err = errors.Wrap(err, "write asset")
 		return
@@ -283,15 +283,28 @@ func (a *Assets) storeByOriginalUrl(ctx context.Context, originalUrl string, pre
 	asset.OriginalName = a.extractOriginalName(response.Header.Get("content-disposition"), originalUrl)
 
 	contentLength := response.ContentLength
-	if contentLength < 0 && a.Config.MaxRemoteSize >= 0 {
-		err = errors.Wrapf(err, "remote size is unknown while the limit is set to positive number %d", a.Config.MaxRemoteSize)
-		return
-	}
-	if contentLength > int64(a.Config.MaxRemoteSize) {
-		err = errors.Wrapf(err, "remote size %d exceeds limit %d", contentLength, a.Config.MaxRemoteSize)
-		return
+	if a.Config.MaxRemoteSize > 0 {
+		if contentLength < 0 {
+			err = errors.Errorf("remote size is unknown while the limit is enabled (max-remote-size=%d)", a.Config.MaxRemoteSize)
+			return
+		}
+		if contentLength > a.Config.MaxRemoteSize {
+			err = errors.Errorf("remote size %d exceeds limit max-remote-size=%d", contentLength, a.Config.MaxRemoteSize)
+			return
+		}
 	}
 	asset.Size = contentLength
+
+	if a.Config.MaxSize > 0 {
+		if contentLength < 0 {
+			err = errors.Errorf("remote size is unknown while the limit is enabled (max-size=%d)", a.Config.MaxSize)
+			return
+		}
+		if contentLength > a.Config.MaxSize {
+			err = errors.Errorf("remote size %d exceeds limit max-size=%d", contentLength, a.Config.MaxSize)
+			return
+		}
+	}
 
 	if prepAssetCh != nil {
 		assetCopy := &types.Asset{}
@@ -302,7 +315,7 @@ func (a *Assets) storeByOriginalUrl(ctx context.Context, originalUrl string, pre
 	var contentHash string
 	var size int64
 	if wc == nil {
-		_, contentHash, size, err = a.Storage.Write(response.Body)
+		_, contentHash, size, err = a.Storage.Write(response.Body, a.Config.MaxSize)
 	} else {
 		defer func() {
 			closeErr := wc.Close()
@@ -313,7 +326,7 @@ func (a *Assets) storeByOriginalUrl(ctx context.Context, originalUrl string, pre
 		}()
 		tee := io.TeeReader(response.Body, wc)
 
-		_, contentHash, size, err = a.Storage.Write(tee)
+		_, contentHash, size, err = a.Storage.Write(tee, a.Config.MaxSize)
 	}
 
 	asset.ContentHash = contentHash

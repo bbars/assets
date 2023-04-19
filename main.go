@@ -74,7 +74,6 @@ func init() {
 				Usage:   "Size limit for resources pushed directly.",
 				Value:   0, // no limit
 				EnvVars: []string{AppEnvPrefix + "MAX_SIZE"},
-				Hidden:  true, // TODO add support
 			},
 			&cli.StringFlag{
 				Name:     "original-url-pattern",

@@ -37,12 +37,8 @@ func (storage *DirStorage) OpenRead(contentHash string) (rc io.ReadCloser, err e
 	return
 }
 
-func (storage *DirStorage) Write(r io.Reader) (exists bool, contentHash string, size int64, err error) {
-	tempPath, contentHash, size, err := storage.storeTemp(r)
-	if err != nil {
-		err = errors.Wrap(err, "store temporary")
-		return
-	}
+func (storage *DirStorage) Write(r io.Reader, maxSize int64) (exists bool, contentHash string, size int64, err error) {
+	tempPath, contentHash, size, err := storage.storeTemp(r, maxSize)
 	defer func() {
 		if tempPath != "" {
 			rmTempErr := os.Remove(tempPath)
@@ -52,6 +48,10 @@ func (storage *DirStorage) Write(r io.Reader) (exists bool, contentHash string, 
 			}
 		}
 	}()
+	if err != nil {
+		err = errors.Wrap(err, "store temporary")
+		return
+	}
 
 	exists, path, err := storage.dig(contentHash, true)
 	if err != nil {
@@ -143,7 +143,7 @@ func (storage *DirStorage) dig(contentHash string, prepare bool) (exists bool, p
 	return
 }
 
-func (storage *DirStorage) storeTemp(r io.Reader) (path string, contentHash string, size int64, err error) {
+func (storage *DirStorage) storeTemp(r io.Reader, maxSize int64) (path string, contentHash string, size int64, err error) {
 	f, err := os.CreateTemp(storage.Dir, "asset")
 	if err != nil {
 		err = errors.Wrap(err, "create temp file for asset")
@@ -163,7 +163,7 @@ func (storage *DirStorage) storeTemp(r io.Reader) (path string, contentHash stri
 	teeMd5 := io.TeeReader(r, md5Calc)
 	teeSha1 := io.TeeReader(teeMd5, sha1Calc)
 
-	_, err = io.Copy(f, teeSha1)
+	_, err = streamCopy(f, teeSha1, maxSize)
 	if err != nil {
 		err = errors.Wrap(err, "reading asset data stream and calculating hashes")
 		return
@@ -183,4 +183,42 @@ func (storage *DirStorage) storeTemp(r io.Reader) (path string, contentHash stri
 	size = fi.Size()
 
 	return
+}
+
+// streamCopy is an adopted version of io.Copy
+func streamCopy(dst io.Writer, src io.Reader, maxSize int64) (written int64, err error) {
+	size := 32 * 1024
+	buf := make([]byte, size)
+	for {
+		nr, er := src.Read(buf)
+		if nr > 0 {
+			nw, ew := dst.Write(buf[0:nr])
+			if nw < 0 || nr < nw {
+				nw = 0
+				if ew == nil {
+					ew = errors.New("invalid write result")
+				}
+			}
+			written += int64(nw)
+			if ew != nil {
+				err = ew
+				break
+			}
+			if nr != nw {
+				err = io.ErrShortWrite
+				break
+			}
+			if maxSize > 0 && written > maxSize {
+				err = errors.Errorf("written size %d exceeds limit %d", written, maxSize)
+				break
+			}
+		}
+		if er != nil {
+			if er != io.EOF {
+				err = er
+			}
+			break
+		}
+	}
+	return written, err
 }
