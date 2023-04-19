@@ -68,6 +68,13 @@ func (storage *DirStorage) Write(r io.Reader, maxSize int64) (exists bool, conte
 		return
 	}
 	tempPath = ""
+
+	err = os.Chmod(path, storage.FilePerm)
+	if err != nil {
+		err = errors.Wrapf(err, "chmod %#o on %+q", storage.FilePerm, path)
+		return
+	}
+
 	return
 }
 
