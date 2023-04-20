@@ -29,25 +29,55 @@ Asset storage service
 
 # GLOBAL OPTIONS
 
-**--dir**="": Directory to store asset files. Example: `'./storage'`.
+**--dir**="": Directory to store asset files.
+Example: `./storage`.
 
-**--dir-perm**="": Permission flags for new directories within a tree. Default: `0755`.
+Environment variable: `ASSETS_DIR`.
 
-**--dsn**="": Data source name (only sqlite3 is supported for now). Example: `'sqlite3:./._storage/assets.db?_journal=TRUNCATE'`.
+**--dir-perm**="": Permission flags for new directories within a tree.
+Default: `0755`.
 
-**--file-perm**="": Permission flags for new files within a tree. Default: `0655`.
+Environment variable: `ASSETS_DIR_PERM`.
 
-**--help, -h**: show help
+**--dsn**="": Data source name (only sqlite3 is supported for now).
+Example: `sqlite3:./storage/assets.db?mode=rwc&_journal=TRUNCATE`.
 
-**--http-user-agent**="": User-Agent header string used by HTTP client when fetching remote resources. Default: `AssetsClient`).
+Environment variable: `ASSETS_DSN`.
 
-**--max-remote-size**="": Size limit for resources fetched by URL. Default: `1048576000` (1000GiB).
+**--file-perm**="": Permission flags for new files within a tree.
+Default: `0655`.
 
-**--max-size**="": Size limit for resources pushed directly. Default: `0` (no limit).
+Environment variable: `ASSETS_FILE_PERM`.
 
-**--original-url-pattern**="": RegExp pattern to check URLs before fetch. Example: '^https?://.'. If not set, download by original URL is disabled.
+**--help, -h**: Show help.
 
-**--path-depth**="": Maximum directory tree depth (default: `2`).
+**--http-user-agent**="": User-Agent header string used by HTTP client
+when fetching remote resources.
+Default: `AssetsClient`.
+
+Environment variable: `ASSETS_HTTP_USER_AGENT`.
+
+**--max-remote-size**="": Size limit for resources fetched by URL.
+Default: `1073741824` (1GiB).
+
+Environment variable: `ASSETS_MAX_REMOTE_SIZE`.
+
+**--max-size**="": Size limit for resources pushed directly.
+Default: `0` (no limit).
+
+Environment variable: `ASSETS_MAX_SIZE`.
+
+**--original-url-pattern**="": RegExp pattern to check URLs
+before fetch.
+Example: `^https?://.`. If not set, download by original URL
+is disabled.
+
+Environment variable: `ASSETS_ORIGINAL_URL_PATTERN`.
+
+**--path-depth**="": Directory tree depth.
+Default: `2`.
+
+Environment variable: `ASSETS_PATH_DEPTH`.
 
 
 # COMMANDS
@@ -60,9 +90,16 @@ Apply migrations on current database.
 
 Start pure HTTP server.
 
-**--bind**="": Address to bind HTTP server (default: `:8080`).
+**--bind**="": Address to bind HTTP server.
+Default: `:8080`.
 
-**--fallback-mimetype**="": Fallback value for response Content-Type header (default: `application/octet-stream`).
+Environment variable: `ASSETS_HTTP_BIND`.
+
+**--fallback-mimetype**="": Fallback value for response
+Content-Type header.
+Default: `application/octet-stream`.
+
+Environment variable: `ASSETS_HTTP_FALLBACK_MIMETYPE`.
 
 ## storeurls
 
@@ -90,7 +127,8 @@ Provide file names after the command name:
 ./assets storefiles ~/image1.jpg ~/image2.jpg video.mp4
 ```
 
-You may feed a dash instead of file name if you want to pass file names to stdin:
+You may feed a dash instead of file name if you want
+to pass file names to stdin:
 
 ```bash
 find -type f -iname '*.jpg' | ./assets storefiles -
@@ -100,13 +138,16 @@ find -type f -iname '*.jpg' | ./assets storefiles -
 
 Read stdin and store the data as an asset.
 
-**--content-type, --type, --mime**="": value for asset's content_type field.
+**--content-type, --type, --mime**="": value for asset's
+content_type field.
 
 **--info**="": value for asset's info field.
 
-**--original-name, --name**="": value for asset's original_name field.
+**--original-name, --name**="": value for asset's
+original_name field.
 
-**--original-url, --url**="": value for asset's original_url field.
+**--original-url, --url**="": value for asset's
+original_url field.
 
 ```bash
 ffmpeg -i foo.avi <options> -f mp4 - | ./assets storepipe --original-name foo.mp4 --content-type video/mp4

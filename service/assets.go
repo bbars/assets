@@ -21,7 +21,7 @@ import (
 type Assets struct {
 	Storage storage.Storage
 	Repo    repository.Repository
-	Config  AssetStorageConfig
+	Config  AssetsConfig
 
 	HttpClient                *http.Client
 	contentDispositionMatcher *regexp.Regexp

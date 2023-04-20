@@ -17,8 +17,6 @@ import (
 	"strings"
 )
 
-const AppEnvPrefix = "ASSETS_"
-
 //go:embed migrations/*
 var migrations embed.FS
 
@@ -36,62 +34,62 @@ func init() {
 				Name:     "dir",
 				Usage:    "Directory to store asset files. Example: './storage'.",
 				Required: false,
-				EnvVars:  []string{AppEnvPrefix + "DIR"},
+				EnvVars:  []string{"ASSETS_DIR"},
 			},
 			&cli.UintFlag{
 				Name:    "path-depth",
-				Usage:   "Maximum directory tree depth.",
+				Usage:   "Directory tree depth.",
 				Value:   2,
-				EnvVars: []string{AppEnvPrefix + "MAX_DEPTH"},
+				EnvVars: []string{"ASSETS_PATH_DEPTH"},
 			},
 			&cli.UintFlag{
 				Name:    "dir-perm",
 				Usage:   "Permission flags for new directories within a tree.",
 				Value:   0755,
-				EnvVars: []string{AppEnvPrefix + "DIR_PERM"},
+				EnvVars: []string{"ASSETS_DIR_PERM"},
 			},
 			&cli.UintFlag{
 				Name:    "file-perm",
 				Usage:   "Permission flags for new files within a tree.",
 				Value:   0655,
-				EnvVars: []string{AppEnvPrefix + "FILE_PERM"},
+				EnvVars: []string{"ASSETS_FILE_PERM"},
 			},
 			&cli.Uint64Flag{
 				Name:    "max-remote-size",
 				Usage:   "Size limit for resources fetched by URL.",
-				Value:   1000 * 1024 * 1024, // 1000GiB
-				EnvVars: []string{AppEnvPrefix + "MAX_REMOTE_SIZE"},
+				Value:   1024 * 1024 * 1024, // 1GiB
+				EnvVars: []string{"ASSETS_MAX_REMOTE_SIZE"},
 			},
 			&cli.Uint64Flag{
 				Name:    "max-remote-wait-size",
 				Usage:   "Size limit to wait for resources fetched by URL.",
 				Value:   10 * 1024 * 1024, // 10MiB
-				EnvVars: []string{AppEnvPrefix + "MAX_REMOTE_WAIT_SIZE"},
+				EnvVars: []string{"ASSETS_MAX_REMOTE_WAIT_SIZE"},
 				Hidden:  true, // TODO add support
 			},
 			&cli.Uint64Flag{
 				Name:    "max-size",
 				Usage:   "Size limit for resources pushed directly.",
 				Value:   0, // no limit
-				EnvVars: []string{AppEnvPrefix + "MAX_SIZE"},
+				EnvVars: []string{"ASSETS_MAX_SIZE"},
 			},
 			&cli.StringFlag{
 				Name:     "original-url-pattern",
 				Usage:    "RegExp pattern to check URLs before fetch. Example: '^https?://.'.",
 				Required: false,
-				EnvVars:  []string{AppEnvPrefix + "ORIGINAL_URL_PATTERN"},
+				EnvVars:  []string{"ASSETS_ORIGINAL_URL_PATTERN"},
 			},
 			&cli.StringFlag{
 				Name:    "http-user-agent",
 				Usage:   "User-Agent header string used by HTTP client when fetching remote resources.",
 				Value:   "AssetsClient",
-				EnvVars: []string{AppEnvPrefix + "HTTP_USER_AGENT"},
+				EnvVars: []string{"ASSETS_HTTP_USER_AGENT"},
 			},
 			&cli.StringFlag{
 				Name:     "dsn",
-				Usage:    "Data source name (only sqlite3 is supported for now). Example: 'sqlite3:./._storage/assets.db?_journal=TRUNCATE'.",
+				Usage:    "Data source name (only sqlite3 is supported for now). Example: 'sqlite3:./storage/assets.db?mode=rwc&_journal=TRUNCATE'.",
 				Required: true,
-				EnvVars:  []string{AppEnvPrefix + "DSN"},
+				EnvVars:  []string{"ASSETS_DSN"},
 			},
 		},
 		Commands: []*cli.Command{
@@ -133,7 +131,7 @@ func initAssets(ctx *cli.Context) (assets *service.Assets, err error) {
 		err = errors.Wrap(err, "invalid regexp passed for original-url-pattern flag")
 		return
 	}
-	assetStorageConf := service.AssetStorageConfig{
+	assetsConf := service.AssetsConfig{
 		MaxRemoteSize:      ctx.Int64("max-remote-size"),
 		MaxRemoteWaitSize:  ctx.Int64("max-remote-wait-size"),
 		MaxSize:            ctx.Int64("max-size"),
@@ -157,7 +155,7 @@ func initAssets(ctx *cli.Context) (assets *service.Assets, err error) {
 	assets = &service.Assets{
 		Storage:    dirStorage,
 		Repo:       repo,
-		Config:     assetStorageConf,
+		Config:     assetsConf,
 		HttpClient: nil,
 	}
 

@@ -32,13 +32,13 @@ func NewHttpCommand(initAssets InitAssets) *cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "bind",
-				Usage:   "Address to bind HTTP server",
+				Usage:   "Address to bind HTTP server.",
 				Value:   ":8080",
 				EnvVars: []string{"ASSETS_HTTP_BIND"},
 			},
 			&cli.StringFlag{
 				Name:    "fallback-mimetype",
-				Usage:   "Fallback value for response Content-Type header",
+				Usage:   "Fallback value for response Content-Type header.",
 				Value:   "application/octet-stream",
 				EnvVars: []string{"ASSETS_HTTP_FALLBACK_MIMETYPE"},
 			},

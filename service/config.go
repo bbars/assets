@@ -4,7 +4,7 @@ import (
 	"regexp"
 )
 
-type AssetStorageConfig struct {
+type AssetsConfig struct {
 	MaxRemoteSize      int64
 	MaxRemoteWaitSize  int64
 	MaxSize            int64
