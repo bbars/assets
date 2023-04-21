@@ -121,7 +121,7 @@ func (storage *DirStorage) dig(contentHash string, prepare bool) (exists bool, p
 			break
 		}
 		if !fi.IsDir() {
-			err = fmt.Errorf("file %+q is not a directory", dir)
+			err = fmt.Errorf("file %+q is not a directory", dir.String())
 			return
 		}
 
