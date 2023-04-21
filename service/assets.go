@@ -6,7 +6,7 @@ import (
 	"github.com/bbars/assets/service/repository"
 	"github.com/bbars/assets/service/storage"
 	"github.com/bbars/assets/service/types"
-	"github.com/bbars/assets/service/utils"
+	"github.com/bbars/assets/utils"
 	"github.com/pkg/errors"
 	"io"
 	"log"

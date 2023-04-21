@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/bbars/assets/ctxutil"
 	"github.com/bbars/assets/service"
 	"github.com/bbars/assets/service/types"
+	"github.com/bbars/assets/utils"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"io"
@@ -78,7 +78,7 @@ func (sh *serveHttp) Action(ctx *cli.Context) error {
 			// Conn will wrap it with cancel that will fire when client disconnects.
 			// We are about to pop *current context* in some situations
 			// to bypass http request context, when we want to ignore client disconnects.
-			return ctxutil.Push(ctx.Context)
+			return utils.ContextPush(ctx.Context)
 		},
 	}
 	closed := make(chan struct{})
@@ -134,7 +134,7 @@ func (sh *serveHttp) storeByOriginalUrl(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	if !wait {
 		// Bypass http request context to ignore client disconnects
-		ctx = ctxutil.Pop(ctx)
+		ctx = utils.ContextPop(ctx)
 	}
 	prepAsset, err := sh.assets.StoreByOriginalUrl(
 		ctx,
@@ -151,7 +151,7 @@ func (sh *serveHttp) store(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case r.Method == http.MethodPost || r.Method == http.MethodPut:
 		data = r.Body
-	case ctxutil.IsDebug(ctx):
+	case utils.ContextIsDebug(ctx):
 		data = strings.NewReader(q.Get("data"))
 	default:
 		sh.respondJson(w, nil, errors.New("invalid method"))

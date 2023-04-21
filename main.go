@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"embed"
 	"github.com/bbars/assets/commands"
-	"github.com/bbars/assets/ctxutil"
 	"github.com/bbars/assets/service"
 	"github.com/bbars/assets/service/repository"
 	"github.com/bbars/assets/service/storage"
+	"github.com/bbars/assets/utils"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 	"log"
@@ -164,8 +164,8 @@ func initAssets(ctx *cli.Context) (assets *service.Assets, err error) {
 
 func main() {
 	ctx := context.Background()
-	ctx = ctxutil.SetDebugAuto(ctx)
-	ctx = ctxutil.HandleInterruptSignal(ctx)
+	ctx = utils.ContextSetDebugAuto(ctx)
+	ctx = utils.ContextHandleInterruptSignal(ctx)
 
 	err := app.RunContext(ctx, os.Args)
 	if err != nil {

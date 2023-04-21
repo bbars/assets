@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/bbars/assets/service/utils"
+	"github.com/bbars/assets/utils"
 	"sync"
 	"time"
 )

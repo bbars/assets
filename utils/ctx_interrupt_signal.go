@@ -1,4 +1,4 @@
-package ctxutil
+package utils
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"syscall"
 )
 
-func HandleInterruptSignal(ctx context.Context) context.Context {
+func ContextHandleInterruptSignal(ctx context.Context) context.Context {
 	ctx, cancel := context.WithCancel(ctx)
 
 	go func() {
