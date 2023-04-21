@@ -4,12 +4,13 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"fmt"
-	"github.com/bbars/assets/utils"
-	"github.com/pkg/errors"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/bbars/assets/utils"
+	"github.com/pkg/errors"
 )
 
 const PathChunkLen = 2

@@ -1,8 +1,9 @@
 package storage
 
 import (
-	"github.com/bbars/assets/utils"
 	"io"
+
+	"github.com/bbars/assets/utils"
 )
 
 type Storage interface {

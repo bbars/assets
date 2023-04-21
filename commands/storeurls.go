@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
-	"github.com/bbars/assets/service"
-	"github.com/urfave/cli/v2"
 	"log"
 	"os"
+
+	"github.com/bbars/assets/service"
+	"github.com/urfave/cli/v2"
 )
 
 func NewStoreUrlsCommand(initAssets InitAssets) *cli.Command {

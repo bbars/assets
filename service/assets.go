@@ -3,11 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/bbars/assets/service/repository"
-	"github.com/bbars/assets/service/storage"
-	"github.com/bbars/assets/service/types"
-	"github.com/bbars/assets/utils"
-	"github.com/pkg/errors"
 	"io"
 	"log"
 	"net/http"
@@ -16,6 +11,12 @@ import (
 	"regexp"
 	"runtime/debug"
 	"time"
+
+	"github.com/bbars/assets/service/repository"
+	"github.com/bbars/assets/service/storage"
+	"github.com/bbars/assets/service/types"
+	"github.com/bbars/assets/utils"
+	"github.com/pkg/errors"
 )
 
 type Assets struct {

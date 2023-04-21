@@ -4,11 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/bbars/assets/service"
-	"github.com/bbars/assets/service/types"
-	"github.com/bbars/assets/utils"
-	"github.com/pkg/errors"
-	"github.com/urfave/cli/v2"
 	"io"
 	"log"
 	"net"
@@ -16,6 +11,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/bbars/assets/service"
+	"github.com/bbars/assets/service/types"
+	"github.com/bbars/assets/utils"
+	"github.com/pkg/errors"
+	"github.com/urfave/cli/v2"
 )
 
 var (

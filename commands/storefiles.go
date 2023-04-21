@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
-	"github.com/bbars/assets/service"
-	"github.com/bbars/assets/service/types"
-	"github.com/urfave/cli/v2"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/bbars/assets/service"
+	"github.com/bbars/assets/service/types"
+	"github.com/urfave/cli/v2"
 )
 
 func NewStoreFilesCommand(initAssets InitAssets) *cli.Command {

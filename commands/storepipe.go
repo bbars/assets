@@ -2,11 +2,12 @@ package commands
 
 import (
 	"encoding/json"
+	"log"
+	"os"
+
 	"github.com/bbars/assets/service"
 	"github.com/bbars/assets/service/types"
 	"github.com/urfave/cli/v2"
-	"log"
-	"os"
 )
 
 func NewStorePipeCommand(initAssets InitAssets) *cli.Command {

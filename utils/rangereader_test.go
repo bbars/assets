@@ -2,9 +2,10 @@ package utils
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"io"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRangeReader(t *testing.T) {

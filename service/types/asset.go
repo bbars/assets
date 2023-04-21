@@ -1,9 +1,10 @@
 package types
 
 import (
-	"github.com/bbars/assets/utils"
 	"sync"
 	"time"
+
+	"github.com/bbars/assets/utils"
 )
 
 type AssetStatus string
@@ -77,9 +78,12 @@ var assetPool = sync.Pool{
 	},
 }
 
-/*func (a *Asset) New() sqlutil.Entity {
-	return assetPool.Get().(sqlutil.Entity)
-}*/
+/*
+	func (a *Asset) New() sqlutil.Entity {
+		return assetPool.Get().(sqlutil.Entity)
+	}
+*/
+
 func NewAsset() *Asset {
 	return assetPool.Get().(*Asset)
 }

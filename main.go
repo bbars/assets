@@ -4,6 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"log"
+	"os"
+	"regexp"
+	"strings"
+
 	"github.com/bbars/assets/commands"
 	"github.com/bbars/assets/service"
 	"github.com/bbars/assets/service/repository"
@@ -11,10 +16,6 @@ import (
 	"github.com/bbars/assets/utils"
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
-	"log"
-	"os"
-	"regexp"
-	"strings"
 )
 
 //go:embed migrations/*

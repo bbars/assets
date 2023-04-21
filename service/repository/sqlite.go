@@ -3,14 +3,15 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"github.com/bbars/assets/service/types"
-	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/pkg/errors"
 	"io"
 	"io/fs"
 	"path/filepath"
 	"time"
+
+	"github.com/bbars/assets/service/types"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/pkg/errors"
 )
 
 const (
