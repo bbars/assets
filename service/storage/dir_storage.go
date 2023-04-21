@@ -111,7 +111,7 @@ func (storage *DirStorage) dig(contentHash string, prepare bool) (exists bool, p
 
 		if os.IsNotExist(err) {
 			if i == 0 {
-				err = fmt.Errorf("root directory %+q does not exist", dir)
+				err = fmt.Errorf("root directory %+q does not exist", dir.String())
 			}
 			err = nil
 			for ; i < storage.PathDepth; i++ {
