@@ -13,8 +13,13 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
+)
+
+var (
+	errRangeError = &utils.RangeError{}
 )
 
 func NewHttpCommand(initAssets InitAssets) *cli.Command {
@@ -111,21 +116,41 @@ func (sh *serveHttp) describeByKey(w http.ResponseWriter, r *http.Request) {
 func (sh *serveHttp) getByKey(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	ctx := r.Context()
+	var err error
+	var rr *utils.Range
+	if headerRange := r.Header.Get("range"); headerRange != "" {
+		rr, err = utils.ParseHttpRangeHeader(headerRange)
+		if err != nil {
+			sh.respondJson(w, nil, err)
+			return
+		}
+	}
 	asset, rc, err := sh.assets.GetByKey(
 		ctx,
 		q.Get("assetKey"),
+		rr,
 	)
-	sh.respondAsset(w, r, asset, rc, err)
+	sh.respondAsset(w, r, asset, rc, rr, err)
 }
 
 func (sh *serveHttp) getByOriginalUrl(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	ctx := r.Context()
+	var err error
+	var rr *utils.Range
+	if headerRange := r.Header.Get("range"); headerRange != "" {
+		rr, err = utils.ParseHttpRangeHeader(headerRange)
+		if err != nil {
+			sh.respondJson(w, nil, err)
+			return
+		}
+	}
 	asset, rc, err := sh.assets.GetByOriginalUrl(
 		ctx,
 		q.Get("originalUrl"),
+		rr,
 	)
-	sh.respondAsset(w, r, asset, rc, err)
+	sh.respondAsset(w, r, asset, rc, rr, err)
 }
 
 func (sh *serveHttp) storeByOriginalUrl(w http.ResponseWriter, r *http.Request) {
@@ -179,7 +204,11 @@ func (sh *serveHttp) respondJson(w http.ResponseWriter, res any, err error) {
 	errStr := ""
 	if err != nil {
 		errStr = err.Error()
-		w.WriteHeader(http.StatusBadRequest)
+		if errors.As(err, &errRangeError) {
+			w.WriteHeader(http.StatusRequestedRangeNotSatisfiable)
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+		}
 	}
 	data := struct {
 		Res any    `json:"res"`
@@ -194,7 +223,7 @@ func (sh *serveHttp) respondJson(w http.ResponseWriter, res any, err error) {
 	}
 }
 
-func (sh *serveHttp) respondAsset(w http.ResponseWriter, r *http.Request, asset *types.Asset, rc io.Reader, err error) {
+func (sh *serveHttp) respondAsset(w http.ResponseWriter, r *http.Request, asset *types.Asset, rc io.Reader, rr *utils.Range, err error) {
 	if closer, ok := rc.(io.Closer); ok {
 		defer func() {
 			closeErr := closer.Close()
@@ -235,7 +264,17 @@ func (sh *serveHttp) respondAsset(w http.ResponseWriter, r *http.Request, asset 
 		w.Header().Set("content-disposition", fmt.Sprintf("inline; *filename='%s'", asset.OriginalName))
 	}
 	if asset.Size > 0 {
-		w.Header().Set("content-length", fmt.Sprintf("%d", asset.Size))
+		w.Header().Set("accept-ranges", "bytes")
+	}
+	if rr == nil {
+		if asset.Size > 0 {
+			w.Header().Set("content-length", strconv.FormatInt(asset.Size, 10))
+		}
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.Header().Set("content-length", strconv.FormatInt(rr.Length(), 10))
+		w.Header().Set("content-range", rr.HttpHeader(asset.Size))
+		w.WriteHeader(http.StatusPartialContent)
 	}
 
 	_, writeErr := io.Copy(w, rc)

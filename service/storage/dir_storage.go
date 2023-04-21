@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"fmt"
+	"github.com/bbars/assets/utils"
 	"github.com/pkg/errors"
 	"io"
 	"os"
@@ -23,7 +24,7 @@ type DirStorage struct {
 
 var _ Storage = &DirStorage{}
 
-func (storage *DirStorage) OpenRead(contentHash string) (rc io.ReadCloser, err error) {
+func (storage *DirStorage) OpenRead(contentHash string, rng *utils.Range) (rc io.ReadCloser, err error) {
 	exists, path, err := storage.dig(contentHash, false)
 	if err != nil {
 		return
@@ -34,6 +35,13 @@ func (storage *DirStorage) OpenRead(contentHash string) (rc io.ReadCloser, err e
 	}
 
 	rc, err = os.Open(path)
+	if err != nil {
+		err = errors.Wrapf(err, "open file %+q", path)
+		return
+	}
+	if rng != nil {
+		rc = utils.NewRangeReader(rc, rng.From, rng.Length())
+	}
 	return
 }
 

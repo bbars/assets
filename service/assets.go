@@ -40,7 +40,7 @@ func (a *Assets) DescribeByKey(ctx context.Context, assetKey string) (asset *typ
 }
 
 //goland:noinspection GoUnusedParameter
-func (a *Assets) GetByKey(ctx context.Context, assetKey string) (asset *types.Asset, rc io.ReadCloser, err error) {
+func (a *Assets) GetByKey(ctx context.Context, assetKey string, rng *utils.Range) (asset *types.Asset, rc io.ReadCloser, err error) {
 	defer RecoverService(&err)
 
 	asset, err = a.Repo.GetByAssetKey(assetKey)
@@ -49,11 +49,11 @@ func (a *Assets) GetByKey(ctx context.Context, assetKey string) (asset *types.As
 		return
 	}
 
-	rc, err = a.readAsset(ctx, asset)
+	rc, err = a.readAsset(ctx, asset, rng)
 	return
 }
 
-func (a *Assets) GetByOriginalUrl(ctx context.Context, originalUrl string) (asset *types.Asset, rc io.ReadCloser, err error) {
+func (a *Assets) GetByOriginalUrl(ctx context.Context, originalUrl string, rng *utils.Range) (asset *types.Asset, rc io.ReadCloser, err error) {
 	defer RecoverService(&err)
 
 	asset, err = a.getByOriginalUrlOrNil(originalUrl)
@@ -61,7 +61,7 @@ func (a *Assets) GetByOriginalUrl(ctx context.Context, originalUrl string) (asse
 		err = errors.Wrap(err, "find existing asset")
 		return
 	} else if asset != nil {
-		rc, err = a.readAsset(ctx, asset)
+		rc, err = a.readAsset(ctx, asset, rng)
 		return
 	}
 
@@ -85,7 +85,7 @@ func (a *Assets) GetByOriginalUrl(ctx context.Context, originalUrl string) (asse
 }
 
 //goland:noinspection GoUnusedParameter
-func (a *Assets) readAsset(ctx context.Context, asset *types.Asset) (rc io.ReadCloser, err error) {
+func (a *Assets) readAsset(ctx context.Context, asset *types.Asset, rng *utils.Range) (rc io.ReadCloser, err error) {
 	if asset.Status == types.AssetStatus_pending || asset.Status == types.AssetStatus_processing {
 		if asset.OriginalUrl == "" {
 			err = errors.Errorf("found asset is not done yet, status=%s", asset.Status)
@@ -103,7 +103,15 @@ func (a *Assets) readAsset(ctx context.Context, asset *types.Asset) (rc io.ReadC
 		return
 	}
 
-	rc, err = a.Storage.OpenRead(asset.ContentHash)
+	if rng != nil {
+		err = rng.Normalize(asset.Size)
+		if err != nil {
+			err = errors.Wrap(err, "read asset range")
+			return
+		}
+	}
+
+	rc, err = a.Storage.OpenRead(asset.ContentHash, rng)
 	if err != nil {
 		err = errors.Wrapf(err, "open asset content_hash=%+q", asset.ContentHash)
 		return
