@@ -17,9 +17,10 @@ func NewStoreUrlsCommand(initAssets InitAssets) *cli.Command {
 		jsonOut: json.NewEncoder(os.Stdout),
 	}
 	return &cli.Command{
-		Name:   "storeurls",
-		Usage:  "Store assets by original URLs",
-		Action: su.Action,
+		Name:    "storeurls",
+		Aliases: []string{"storeurl"},
+		Usage:   "Store assets by original URLs",
+		Action:  su.Action,
 		Before: func(ctx *cli.Context) (err error) {
 			su.assets, err = initAssets(ctx)
 			return
@@ -33,7 +34,7 @@ type storeUrl struct {
 	jsonOut *json.Encoder
 }
 
-func (su storeUrl) Action(ctx *cli.Context) (err error) {
+func (su *storeUrl) Action(ctx *cli.Context) (err error) {
 	var scanner *bufio.Scanner
 
 	args := ctx.Args()

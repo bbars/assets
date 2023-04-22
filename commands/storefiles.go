@@ -19,9 +19,10 @@ func NewStoreFilesCommand(initAssets InitAssets) *cli.Command {
 		jsonOut: json.NewEncoder(os.Stdout),
 	}
 	return &cli.Command{
-		Name:   "storefiles",
-		Usage:  "Store local files as assets",
-		Action: sf.Action,
+		Name:    "storefiles",
+		Aliases: []string{"storefile"},
+		Usage:   "Store local files as assets",
+		Action:  sf.Action,
 		Before: func(ctx *cli.Context) (err error) {
 			sf.assets, err = initAssets(ctx)
 			return
@@ -35,7 +36,7 @@ type storeFile struct {
 	jsonOut *json.Encoder
 }
 
-func (sf storeFile) Action(ctx *cli.Context) (err error) {
+func (sf *storeFile) Action(ctx *cli.Context) (err error) {
 	var scanner *bufio.Scanner
 
 	args := ctx.Args()

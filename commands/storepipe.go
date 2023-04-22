@@ -52,7 +52,7 @@ type storePipe struct {
 	jsonOut *json.Encoder
 }
 
-func (sp storePipe) Action(ctx *cli.Context) (err error) {
+func (sp *storePipe) Action(ctx *cli.Context) (err error) {
 	defer func() {
 		closeErr := os.Stdin.Close()
 		if closeErr != nil && err == nil {
