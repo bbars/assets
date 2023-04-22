@@ -60,6 +60,16 @@ func TestRange(t *testing.T) {
 			wantHeader:   "bytes=7-9/10",
 		},
 		{
+			name:         "auto length full",
+			rangeHeader:  "bytes=0-",
+			wantParseErr: false,
+			wantRange:    Range{0, 0},
+			wantNormErr:  false,
+			wantNormFrom: 0,
+			wantNormTo:   10,
+			wantHeader:   "bytes=0-9/10",
+		},
+		{
 			name:         "full",
 			rangeHeader:  "bytes=0-9",
 			wantParseErr: false,

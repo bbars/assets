@@ -33,7 +33,7 @@ func (r Range) HttpHeader(size int64) string {
 }
 
 func (r *Range) Normalize(size int64) (err error) {
-	if 0 <= r.From && 0 <= r.To && r.From <= r.To && r.To <= size {
+	if 0 <= r.From && 0 <= r.To && r.From < r.To && r.To <= size {
 		// range already normalized
 		return
 	}
