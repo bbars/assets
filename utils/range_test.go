@@ -27,7 +27,7 @@ func TestRange(t *testing.T) {
 			wantNormErr:  false,
 			wantNormFrom: 3,
 			wantNormTo:   9,
-			wantHeader:   "bytes=3-8/10",
+			wantHeader:   "bytes 3-8/10",
 		},
 		{
 			name:         "normal 2-3",
@@ -37,7 +37,7 @@ func TestRange(t *testing.T) {
 			wantNormErr:  false,
 			wantNormFrom: 2,
 			wantNormTo:   4,
-			wantHeader:   "bytes=2-3/10",
+			wantHeader:   "bytes 2-3/10",
 		},
 		{
 			name:         "auto offset",
@@ -47,7 +47,7 @@ func TestRange(t *testing.T) {
 			wantNormErr:  false,
 			wantNormFrom: 6,
 			wantNormTo:   10,
-			wantHeader:   "bytes=6-9/10",
+			wantHeader:   "bytes 6-9/10",
 		},
 		{
 			name:         "auto length",
@@ -57,7 +57,7 @@ func TestRange(t *testing.T) {
 			wantNormErr:  false,
 			wantNormFrom: 7,
 			wantNormTo:   10,
-			wantHeader:   "bytes=7-9/10",
+			wantHeader:   "bytes 7-9/10",
 		},
 		{
 			name:         "auto length full",
@@ -67,7 +67,7 @@ func TestRange(t *testing.T) {
 			wantNormErr:  false,
 			wantNormFrom: 0,
 			wantNormTo:   10,
-			wantHeader:   "bytes=0-9/10",
+			wantHeader:   "bytes 0-9/10",
 		},
 		{
 			name:         "full",
@@ -77,7 +77,7 @@ func TestRange(t *testing.T) {
 			wantNormErr:  false,
 			wantNormFrom: 0,
 			wantNormTo:   10,
-			wantHeader:   "bytes=0-9/10",
+			wantHeader:   "bytes 0-9/10",
 		},
 		{
 			name:         "length overflow",
@@ -87,7 +87,7 @@ func TestRange(t *testing.T) {
 			wantNormErr:  false,
 			wantNormFrom: 0,
 			wantNormTo:   10,
-			wantHeader:   "bytes=0-9/10",
+			wantHeader:   "bytes 0-9/10",
 		},
 		{
 			name:         "negative offset",
@@ -97,7 +97,7 @@ func TestRange(t *testing.T) {
 			wantNormErr:  false,
 			wantNormFrom: 0,
 			wantNormTo:   10,
-			wantHeader:   "bytes=0-9/10",
+			wantHeader:   "bytes 0-9/10",
 		},
 		{
 			name:         "overflow-overlap",
@@ -106,7 +106,7 @@ func TestRange(t *testing.T) {
 			wantRange:    Range{8, 16},
 			wantNormFrom: 8,
 			wantNormTo:   10,
-			wantHeader:   "bytes=8-9/10",
+			wantHeader:   "bytes 8-9/10",
 		},
 		{
 			name:         "offset overflow",

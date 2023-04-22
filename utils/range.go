@@ -25,7 +25,7 @@ func (r Range) HttpHeader(size int64) string {
 		}
 	}
 	return fmt.Sprintf(
-		"bytes=%d-%d/%d",
+		"bytes %d-%d/%d",
 		r.From,
 		r.To-1, // exclusive to inclusive
 		size,
