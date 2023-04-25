@@ -48,6 +48,12 @@ func NewHttpCommand(initAssets InitAssets) *cli.Command {
 				Value:   "application/octet-stream",
 				EnvVars: []string{"ASSETS_HTTP_FALLBACK_MIMETYPE"},
 			},
+			&cli.DurationFlag{
+				Name:    "cache-ttl",
+				Usage:   "Duration for Cache-Control and Expires response headers.",
+				Value:   31536000 * time.Second,
+				EnvVars: []string{"ASSETS_HTTP_CACHE_TTL"},
+			},
 		},
 	}
 }
@@ -115,6 +121,10 @@ func (sh *serveHttp) describeByKey(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh *serveHttp) getByKey(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("if-none-match") != "" {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
 	q := r.URL.Query()
 	ctx := r.Context()
 	var err error
@@ -135,6 +145,10 @@ func (sh *serveHttp) getByKey(w http.ResponseWriter, r *http.Request) {
 }
 
 func (sh *serveHttp) getByOriginalUrl(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("if-none-match") != "" {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
 	q := r.URL.Query()
 	ctx := r.Context()
 	var err error
@@ -266,6 +280,15 @@ func (sh *serveHttp) respondAsset(w http.ResponseWriter, r *http.Request, asset 
 	}
 	if asset.Size > 0 {
 		w.Header().Set("accept-ranges", "bytes")
+	}
+	cacheTtl := sh.cliCtx.Duration("cache-ttl")
+	if cacheTtl > 0 {
+		w.Header().Set("cache-control", fmt.Sprintf("public, max-age=%d", uint64(cacheTtl/time.Second)))
+		w.Header().Set("expires", time.Now().Add(cacheTtl).UTC().Format(http.TimeFormat))
+		w.Header().Set("pragma", "cache")
+		if asset.ContentHash != "" {
+			w.Header().Set("etag", asset.ContentHash)
+		}
 	}
 	if rr == nil {
 		if asset.Size > 0 {
